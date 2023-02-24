@@ -1,0 +1,229 @@
+\documentclass{article}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage{upquote}
+\usepackage{amssymb}
+\usepackage{wasysym}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{epsfig}
+\setlength{\oddsidemargin}{0in}\setlength{\textwidth}{6.5in}
+\setlength{\topmargin}{0.0in}\setlength{\textheight}{8.5in}
+\input{cs418-macros}
+\newcommand{\sq}{\textquotesingle}
+\newcommand{\bsq}[1]{\textquotesingle#1\textquotesingle}
+%\newcommand{\erlist}[1]{[#1]}
+%\newcommand{\erldoc}[3]{\hrefc{http://erlang.org/doc/man/#1.html\##2-#3}{#2}}
+%\newcommand{\erlangdoc}[2]{\hrefc{http://erlang.org/doc/man/erlang.html\##1-#2}{#1}}
+%\newcommand{\listdoc}[2]{\hrefc{http://erlang.org/doc/man/lists.html\##1-#2}{lists:#1}}
+%\newcommand{\iodoc}[2]{\hrefc{http://erlang.org/doc/man/io.html\##1-#2}{lists:#1}}
+%\newcommand{\addpath}{\hrefc{http://erlang.org/doc/man/code.html#add_path-1}{code:add\_path}}
+%\newcommand{\timeitt}{\hrefc{https://www.ugrad.cs.ubc.ca/~cs-418/resources/erl/doc/time_it.html\#t-1}{time\_it:t/1}}
+%\newcommand{\miscdoc}[2]{\hrefc{https://www.ugrad.cs.ubc.ca/~cs-418/resources/erl/doc/misc.html#1-#2}{mis:#1}}
+%\newcommand{\workersdoc}[2]{\hrefc{https://www.ugrad.cs.ubc.ca/~cs-418/resources/erl/doc/workers.html#1-#2}{workers:#1}}
+%\newcommand{\wtreedoc}[2]{\hrefc{https://www.ugrad.cs.ubc.ca/~cs-418/resources/erl/doc/wtree.html#1-#2}{wtree:#1}}
+\newcommand{\hwOne}{\hrefc{http://www.students.cs.ubc.ca/~cs-418/2022-2/hw/1/hw1.pdf}{HW1}}
+\newcommand{\erltemplate}{\hrefc{http://www.students.cs.ubc.ca/~cs-418/2022-2/hw/2/src/hw2.erl}{\code{hw2.erl}}}
+\newcommand{\testtemplate}{\hrefc{http://www.students.cs.ubc.ca/~cs-418/2022-2/hw/2/src/hw2_tests.erl}{\code{hw2\_tests.erl}}}
+\newcommand{\hwOneTests}{\hrefc{http://www.students.cs.ubc.ca/~cs-418/2022-2/hw/1/src/hw1_tests.erl}{\code{hw1\_tests.erl}}}
+\newcommand{\rederl}{\hrefc{http://www.students.cs.ubc.ca/~cs-418/2022-2/hw/2/src/red.erl}{\code{red.erl}}}
+\begin{document}
+\noindent%
+CpSc 418 \hfill \begin{tabular}[t]{c}{\Large\bf Homework 2}\smallskip\\
+		\end{tabular}
+	 \hfill \begin{tabular}[t]{l}Due: February 7, 2023, 11:59pm\\
+	                             Early-Bird: February 5, 2023, 11:59pm
+		\end{tabular}\bigskip\\
+
+\par\noindent%
+\section*{Prelude}
+Please submit your solution using:\\
+  \rule{2em}{0ex}\texttt{handin cs-418 hw2}
+Your solution should contain three files:
+\begin{description}
+  \item{\texttt{hw2.erl}}: Erlang source code for your solutions to the questions.
+  \item{\texttt{hw2\_tests.erl}}: \hrefc{https://learnyousomeerlang.com/eunit}{EUnit}
+    tests for the functions you were asked to write.  In addition to the template that I will post,
+    you can use \hwOneTests{} as an example.
+  \item{\texttt{hw2.pdf}}: Your solutions to written questions.
+\end{description}
+  
+Templates for \erltemplate{} and \testtemplate{} are available at\\
+\rule{1.5em}{0ex}\urlc{http://www.students.cs.ubc.ca/~cs-418/2022-2/hw/2/hw2.html}.\smallskip\\
+The tests in \testtemplate{} are not exhaustive.
+If your code doesn't work with these,
+it will almost certainly have problems with the test cases used for grading.
+The actual grading will include other test cases as well.
+
+Same notes as from \hwOne{} about how your code should compile without errors or warnings, and your functions
+should only print stuff that is explicitly requested in the questions and you should acknowledge your collaborators
+and cite outside sources with a comment at the beginning of your \texttt{hw1.erl} file or a remark at the beginning
+of your  \texttt{hw1.pdf} file.  Thanks!
+
+\section*{The Questions}
+
+\begin{enumerate}
+  \item \textbf{$\pi$ reduce}:
+    Recall the method of estimating $\pi$ by choosing a positive integer, $N$, and finding the probability,
+    $P(N)$, that two integers, \code{A} and \code{B} are co-prime.
+    We then note $\lim_{N \rightarrow \infty} P(N) = 6/\pi^2$ and use this to compute $\pi$.
+    For this problem and Q2, we will use the implementation of trees of worker processes presented in class.
+    It's available as \rederl{} in the code provided with this assignment.
+    \begin{enumerate}
+      \item Write a parallel implementation of the deterministic method for estimating $\pi$ (see \hwOne{} Q1.a\&b).
+	Write a function \code{p(W, N)} where \code{W} is a worker-tree returned by
+	\wtreedoc{create}{1}, i.e.~\code{wtree:create(23)} returns a binary tree of 23 worker processes.
+	\code{p(W, N)} should return the number of pairs of integers $1 \leq \code{A}, \code{B} \leq N$ such that
+	\code{A} and \code{B} are co-prime.
+      \item Measure the speed-up for your parallel implementation.
+	Run your timing measurements on \texttt{thetis.students.cs.ubc.ca} and use \timeitt{}.
+	\texttt{Thetis} has 64 cores (more technically, it has 32 hardware cores, each of which is 2-way multithreaded).
+	Speed-up is $T_{seq}/T_{par}$ where $T_{seq}$ is the sequential running time (e.g.\ your solution from HW1),
+	and $T_{par}$ is the parallel run-time.  Try experiments using $4$, $16$, $32$, $64$, $128$, and $256$ processes
+	and values of \code{N} from 1000 increasing by multiples of 10 until you reach a value
+	(for the number of processes) where the execution takes between 1 and 10 seconds.
+	What number of processes and value for $N$ gives you the highest speed-up?
+      \item \textbf{Just for fun:}  Implement a parallel version of the randomized version from \hwOne{} Q1.c and
+	measure the speed-up.
+    \end{enumerate}
+
+  \item \textbf{Reduce -- by the book}:  As noted in class, the course-library implementations of reduce and scan
+    start with a master process broadcasting a request from the root of the process tree down to the leaves, the
+    leaves do the work, and the results are combined back to the root and the grand total is sent to the master.
+    When performing a scan, the course library adds a final top-down pass to generate the cumulative sums (or
+    whatever operator was used) at the leaves.  In the book, reduce and scan are both start with a bottom-up
+    pass that is initiated by the leaf processes, followed by a top-down pass the distributes the results.  Scan
+    uses the same bottom-up pass as reduce, but the final top-down pass is different for scan and reduce, both by
+    the books method and the course library.
+    \par
+    For this question, implement
+    \begin{SmallCode}
+      reduce\_bu(ProcState, LeafVal, Combine) -> \xcomment{Total}\\
+      \>\xcomment{\code{ProcState}: the process state for this worker.}\\
+      \>\xcomment{\code{LeafVal}: the value at the leaf of the reduce tree computed by this worker.}\\
+      \>\xcomment{\code{Combine}: the associative function for combining values.}\\
+    \end{SmallCode}
+    Note: \code{ProcState} is needed by \code{reduce\_bu} because it includes entries for:
+    \begin{description}
+      \item{\code{parent}:} The pid of the parent node for this process, or the atom \code{none} if
+	this is the root node.
+      \item{\code{children\_bu}:} A list of pids of the children of this tree, in bottom-up order.
+	To describe this list, I'll assume that that \code{P}, the number of worker processes in the tree is a power of 2.
+	If the index of a worker node is \code{I}, we can write $I = 2^K J$ where either $J$ is odd,
+	or $J=0$ and $K = log_2 P$.
+	Node \code{I} has $K$ children in the list associate with \code{children\_bu} -- these are the
+	workers with indices $I + 2^M$ for each $M \in \{0, 1, \ldots, K-1\}$.  The list is in order of
+	increasing worker index.  For example, if \code{P} = 16, then $\code{worker}_0$ has the list of children:
+	\begin{SmallCode}
+	  \rule{0em}{0ex}[$\code{worker}_1$, $\code{worker}_2$, $\code{worker}_4$, $\code{worker\_8}$]
+	\end{SmallCode}
+	and $\code{worker}_{12}$ has the list of children
+	\begin{SmallCode}
+	  \rule{0em}{0ex}[$\code{worker}_{13}$, $\code{worker}_{14}$]
+	\end{SmallCode}
+	If \code{P} is not a power of two, we construct a binary tree where the left subtree has \code{ceil(P / 2)} leaves,
+	and the right subtree has \code{floor(P / 2)} leaves, and likewise for the subtrees.  If a (sub)tree spans workers
+	\code{W\_I} through \code{W\_J}, then worker \code{W\_I} is the root of the (sub)tree and its left subtree.  There
+	are \code{M = J + 1 - I} leaves to this tree, and worker \code{W\_\{I + (M div 2)\}} is the root of the right subtree.
+    \end{description}
+    Hint: Here's a sketch of \code{reduce\_bu}:
+    \begin{itemize}
+      \item Fetch the list of child pids and the parent pid from \code{ProcState}.
+      \item Call a recursive helper function that walks down the list of child pids,
+	receiving value from each, and combining them.  Make sure that you keep the
+	left-right order of arguments correct.  I'll test your \code{reduce\_bu} with
+	a \code{Combine} function that is associative but not commutative.
+      \item When you reach the end of the list, send your result to your parent (if you have one).
+	\begin{itemize}
+	  \item If your parent is \code{none}, then propagate the result back down the tree.
+	\end{itemize}
+    \end{itemize}
+    Each worker process calls \code{reduce\_bu} when its \code{LeafVal} is ready.
+    The values are \code{Combine}'s up the tree, and the final total propagated down the tree to each worker process.
+
+  \item \textbf{Scan -- by the book}:
+    For this question, implement
+    \begin{SmallCode}
+      scan\_bu(ProcState, AccIn, LeafVal, Combine) -> \xcomment{AccLeft}\\
+      \>\xcomment{Parameters:}\\
+      \>\>\xcomment{\code{ProcState}: the process state for this worker.}\\
+      \>\>\xcomment{\code{AccIn}: the initial value for the accumulator (used at the root of the tree).}\\
+      \>\>\xcomment{\code{LeafVal}: the value at the leaf of the reduce tree computed by this worker.}\\
+      \>\>\xcomment{\code{Combine(Left, Right)}: the associative function for combining values.}\\
+      \>\xcomment{Result:}\\
+      \>\>\xcomment{\code{AccLeft}: }\=\xcomment{the result of combining everything to the left of this node using \code{Combine}.}\\
+      \>\>\>\xcomment{If this is the leftmost node, then \code{AccLeft =:= AccIn}.}
+    \end{SmallCode}
+    Each worker process calls \code{scan\_bu} when its \code{LeafVal} is ready.
+    The values are \code{Combine}'d up the tree.  When the \code{Combine} operation reaches the root of the tree,
+    you need to propagate values back down the tree.  This is where the code for \code{scan} differs from that
+    for \code{reduce}.  Many of the ideas from your solution to \code{reduce} should carry over to \code{scan}.
+    \par
+    The return value from \code{scan\_bu} is the combined value of everything to the left of this node starting with the value 
+    \code{AccIn}.
+    The worker process can combine this with its local value to get its segment of the scan.
+    See \code{scan\_x(P, EUnitFlag)} in \testtemplate{} for an example of using \code{hw2:scan} to compute the
+    cumulative sum of the elements of a list distributed across a tree of \code{P} workers.
+    The \code{EUnitFlag} determines whether \code{scan\_x} returns a list of EUnit tests or if it runs the
+    tests and prints the result in a (hopefully) human-friendly way.
+
+  \item \textbf{Brownian motion} (simplified):
+    Consider a random walk that starts at the origin of the $(X,Y)$ plane.
+    In Erlang, we will represent coordinates as tuples \code{\tuple{X, Y}}
+    (although lists might have been a better choice to generalize to other dimensions).
+    At each step, the walker chooses a random direction (uniformly in $[0, 2\pi]$) where the direction
+    is the angle, in radians, counter-clockwise from the positive $X$-axis.
+    The walker also chooses how far to go in this step, $R$, where $R$ is exponentially distributed with parameter \code{Alpha}.
+    We are interested in what is the greatest distance from the origin that our walker reaches during a \code{N} step walk.
+    The template code in \erltemplate{} provides a sequential implementation.
+    \par
+    \begin{enumerate}
+      \item Write a parallel implementation: \code{brownie\_par(W, N, Alpha) -> GreatestDistance}.
+	Use the functions from the \code{wtree} module in the class library.
+	Hint: my solution uses:
+	\begin{description}
+	  \item{\code{wtree:nworkers(W)}:} -- find out how many leaf processes there are to know how much work to give to each worker.
+	  \item{\code{wtree:update(...)}:} -- each worker computes its sequence of steps.
+	  \item{\code{wtree:scan(...)}:} --
+	    Each worker computes a list of the locations reached after performing each of its steps.
+	    Note: the ``walk'' by worker {I} (for \code{I > 0}) starts from the end point of the walk by worker \code{I-1}.
+	  \item{\code{wtree:reduce(...)}:} -- find the maximum distance from the origin.
+	\end{description}
+      \item Compute the speed-up for various numbers of worker processes and various choices of \code{N}.
+	You can fix \code{Alpha = 1.0}.  Follow the guidelines for measuring speed-up that were given in Q1.
+      \item Just for fun:  the estimate of max-distance has a \emph{large} variance.
+	I'm observing a variance of about $1/3$ the mean.  Don't let this stress you out.
+	If you want more consistent results, try computing the average from 100 to 1000 runs.
+	Note that this provides another opportunity for parallelism.
+    \end{enumerate}
+
+  \item \textbf{Speed-up:}  Consider using reduce on a problem of size $N$ using $P$ processors.
+    For simplicity, assume that $P$ is a power of two -- thus, the reduce tree is a complete binary tree.
+    Each leaf worker takes time $(N/P)*T_{leaf}$ time to compute it's local result.  The time to send a
+    message between processes is $\lambda$, and the time to combine the results of two sub-trees (not including
+    the communication time) is $T_{combine}$.
+    \begin{enumerate}
+      \item (easy) What is the total time to compute the reduce?
+      \item (easy) What is the total time to compute the same result sequentially?
+	Remember: no communication costs.
+      \item If $T_{combine}=T_{leaf}$, how big does $N$ need to be to get a speed-up of $P/2$?
+	Assume that $\lambda \gg 1$ and simplify accordingly.
+	Your solution should make it clear where you use this assumption.
+      \item If $T_{leaf}=\lambda$, how big does $N$ need to be to get a speed-up of $P/2$?
+    \end{enumerate}
+
+\end{enumerate}
+
+\vfill
+\parbox{0.16\textwidth}{
+  \includegraphics[width=0.16\textwidth]{cc-by}
+}\hfill\parbox{0.80\textwidth}{
+  \footnotesize
+  Unless otherwise noted or cited, 
+  the questions and other material in this homework problem set
+  is copyright 2022 by Mark Greenstreet
+  and are made available under the terms of the Creative Commons
+  Attribution 4.0 International license
+  \url{http://creativecommons.org/licenses/by/4.0/}
+}
+\end{document}
